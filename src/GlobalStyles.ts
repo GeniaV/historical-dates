@@ -5,7 +5,8 @@ const GlobalStyles = createGlobalStyle`
     --color-base: #42567a;
     --color-blue: #3877ee;
     --color-pink: #ef5da8;
-    --gradient-primary: linear-gradient(180deg, #3877EE 0%, #EF5DA8 100%);
+    --color-gray: #303e58;
+    --backgroud-color: #f4f5f9;
   }
 
   @font-face {
@@ -41,7 +42,7 @@ const GlobalStyles = createGlobalStyle`
   body {
     max-width: 1920px;
     min-width: 320px;
-    background: #f4f5f9;
+    background: var(--backgroud-color);
     color: var(--color-base);
     margin: 0;
     padding: 0;
