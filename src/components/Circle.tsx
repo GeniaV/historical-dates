@@ -2,11 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { gsap } from 'gsap';
 import CirclePoint from './ui/CirclePoint';
-import { categories } from '../staticData';
+import ArrowButton from './ui/ArrowButton';
 
 interface CircleProps {
   points: number;
   initialRotation?: number;
+  categories: Record<number, {
+    name: string;
+    dateRange: string;
+    events: { year: number; description: string }[];
+  }>;
 }
 
 const CircleContainer = styled.div<{ $borderOpacity: number }>`
@@ -95,7 +100,39 @@ const EndInterval = styled.p`
   }
 `;
 
-const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
+const ArrowNavigator = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 120px;
+  width: 100%;
+  row-gap: 20px;
+  position: relative;
+  left: 20.7%;
+   top: calc(100px + 34vh);
+
+  @media (max-width: 985px) {
+    max-width: 59px;
+    row-gap: 11px;
+  }
+`;
+
+const ArrowNavigatorText = styled.p`
+  font-size: 14px;
+  line-height: 100%;
+  margin: 0;
+  padding: 0;
+`;
+
+const ArrowsContainer = styled.div`
+  display: flex;
+  column-gap: 20px;
+
+  @media (max-width: 985px) {
+   column-gap: 8px;
+  }
+`;
+
+const Circle: React.FC<CircleProps> = ({ categories, points, initialRotation = -60 }) => {
   const radius = 265;
   const center = radius;
   const angleStep = 360 / points;
@@ -128,7 +165,7 @@ const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
     }
   }, [rotation]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (labelRef.current) {
       gsap.fromTo(
         labelRef.current,
@@ -142,6 +179,10 @@ const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
       );
     }
   }, [selectedPoint]);
+
+  const formatSegment = (current: number, total: number): string => {
+    return `${String(current).padStart(2, '0')}/${String(total).padStart(2, '0')}`;
+  };
 
   const handlePointClick = (clickedNumber: number) => {
     if (selectedPoint === clickedNumber) return;
@@ -160,6 +201,18 @@ const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
     setRotation(newRotation);
     animateYears(categories[selectedPoint]?.dateRange || '', categories[clickedNumber]?.dateRange || '');
     setSelectedPoint(clickedNumber);
+  };
+
+  const handleArrowClick = (direction: 'left' | 'right') => {
+    let newPoint = direction === 'right' ? selectedPoint - 1 : selectedPoint + 1;
+
+    if (newPoint < 1) {
+      newPoint = points;
+    } else if (newPoint > points) {
+      newPoint = 1;
+    }
+
+    handlePointClick(newPoint);
   };
 
   const animateYears = (currentRange: string, nextRange: string) => {
@@ -186,44 +239,64 @@ const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
   };
 
   return (
-    <CircleContainer $borderOpacity={0.5}>
-      <IntervalContainer>
-        <StartInterval>{currentStartYear}</StartInterval>
-        <EndInterval>{currentEndYear}</EndInterval>
-      </IntervalContainer>
+    <>
+      <CircleContainer $borderOpacity={0.5}>
+        <IntervalContainer>
+          <StartInterval>{currentStartYear}</StartInterval>
+          <EndInterval>{currentEndYear}</EndInterval>
+        </IntervalContainer>
 
-      <RotatingWrapper ref={wrapperRef}>
-        {pointsArray.map((num, index) => {
-          const angle = (360 / points) * index;
-          const x = center + radius * Math.cos((angle * Math.PI) / 180);
-          const y = center + radius * Math.sin((angle * Math.PI) / 180);
+        <RotatingWrapper ref={wrapperRef}>
+          {pointsArray.map((num, index) => {
+            const angle = (360 / points) * index;
+            const x = center + radius * Math.cos((angle * Math.PI) / 180);
+            const y = center + radius * Math.sin((angle * Math.PI) / 180);
 
-          return (
-            <PointContainer
-              key={num}
-              $left={`${x}px`}
-              $top={`${y}px`}
-            >
-              <div
-                style={{
-                  transform: `rotate(${-rotation}deg)`
-                }}
+            return (
+              <PointContainer
+                key={num}
+                $left={`${x}px`}
+                $top={`${y}px`}
               >
-                <CirclePoint
-                  number={num}
-                  onClick={() => handlePointClick(num)}
-                  isSelected={selectedPoint === num}
-                />
-              </div>
-            </PointContainer>
-          );
-        })}
-      </RotatingWrapper>
-      <CategoryLabel ref={labelRef}>
-        {categories[selectedPoint]?.name}
-      </CategoryLabel>
-
-    </CircleContainer >
+                <div
+                  style={{
+                    transform: `rotate(${-rotation}deg)`
+                  }}
+                >
+                  <CirclePoint
+                    number={num}
+                    onClick={() => handlePointClick(num)}
+                    isSelected={selectedPoint === num}
+                  />
+                </div>
+              </PointContainer>
+            );
+          })}
+        </RotatingWrapper>
+        <CategoryLabel ref={labelRef}>
+          {categories[selectedPoint]?.name}
+        </CategoryLabel>
+      </CircleContainer>
+      <ArrowNavigator>
+        <ArrowNavigatorText>
+          {formatSegment(selectedPoint, points)}
+        </ArrowNavigatorText>
+        <ArrowsContainer>
+          <ArrowButton
+            size="large"
+            direction="right"
+            isActive={selectedPoint === 1 ? false : true}
+            onClick={() => handleArrowClick('right')}
+          />
+          <ArrowButton
+            size="large"
+            direction="left"
+            isActive={selectedPoint === points ? false : true}
+            onClick={() => handleArrowClick('left')}
+          />
+        </ArrowsContainer>
+      </ArrowNavigator>
+    </>
   );
 };
 

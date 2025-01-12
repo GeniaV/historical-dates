@@ -65,7 +65,7 @@ const sizes = {
   },
 };
 
-const Button = styled.button<ArrowButtonProps>`
+const Button = styled.button<Pick<ArrowButtonProps, 'size' | 'direction'>>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,24 +88,18 @@ const Button = styled.button<ArrowButtonProps>`
       }
 
       &:hover {
-      background: ${props.isActive ? 'white' : 'none'};
-    }
+        background: white;
+      }
 
-      ${!props.isActive &&
-      css`
-        opacity: 0.3;
-        cursor: not-allowed;
-      `}
-    `}
+      @media (max-width: 985px) {
+        width: ${sizes.small.dimension};
+        height: ${sizes.small.dimension};
 
-  ${(props) =>
-    props.size === 'medium' &&
-    css`
-      width: ${sizes.medium.dimension};
-      height: ${sizes.medium.dimension};
-      background: white;
-      box-shadow: 0 0 15px rgba(56, 119, 238, 0.1);
-      border: none;
+        svg {
+          width: 6px;
+          height: 9px;
+        }
+      }
     `}
 
   ${(props) =>
@@ -120,12 +114,23 @@ const Button = styled.button<ArrowButtonProps>`
       &:active {
         background: white;
       }
+    `}
 
-      ${!props.isActive &&
-      css`
-        opacity: 0.3;
-        cursor: not-allowed;
-      `}
+  ${(props) =>
+    props.disabled &&
+    css`
+      opacity: 0.3;
+      cursor: not-allowed;
+    `}
+
+  ${(props) =>
+    props.size === 'medium' &&
+    css`
+      width: ${sizes.medium.dimension};
+      height: ${sizes.medium.dimension};
+      background: white;
+      box-shadow: 0 0 15px rgba(56, 119, 238, 0.1);
+      border: none;
     `}
 `;
 
@@ -142,7 +147,12 @@ const ArrowButton: React.FC<ArrowButtonProps> = ({
   };
 
   return (
-    <Button size={size} direction={direction} isActive={isActive} onClick={handleClick}>
+    <Button
+      size={size}
+      direction={direction}
+      disabled={!isActive}
+      onClick={handleClick}
+    >
       {sizes[size].svg}
     </Button>
   );

@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Circle from './Circle';
+import Event from './Event';
+import { categories } from '../staticData';
 
 const TimelineContainer = styled.section`
 
@@ -39,12 +41,7 @@ const TimelineBlock = () => {
   return (
     <TimelineContainer>
       <Title>Исторические даты</Title>
-      {/* <ArrowButton
-        size="large"
-        direction="right"
-        isActive={true}
-        onClick={(e) => console.log('Large Arrow Clicked Righr', e)}
-      />
+      {/* 
 
       <ArrowButton
         size="medium"
@@ -60,7 +57,8 @@ const TimelineBlock = () => {
       /> */}
 
 
-      <Circle points={6} />
+      <Circle points={6} categories={categories}/>
+      <Event />
 
     </TimelineContainer>
   );
