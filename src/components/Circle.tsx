@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { gsap } from 'gsap';
 import CirclePoint from './ui/CirclePoint';
 import { categories } from '../staticData';
 
 interface CircleProps {
   points: number;
+  initialRotation?: number;
 }
 
 const CircleContainer = styled.div<{ $borderOpacity: number }>`
@@ -18,9 +20,29 @@ const CircleContainer = styled.div<{ $borderOpacity: number }>`
   border-radius: 50%;
   background-color: transparent;
 
-  @media (max-width: 768px) {
+  @media (max-width: 985px) {
     display: none;
   }
+`;
+
+const CategoryLabel = styled.div`
+  position: absolute;
+  text-align: start;
+  max-width: 125px;
+  width: 100%;
+  left: 81%;
+  top: 3.5%;
+  margin-left: 20px;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-base);
+  opacity: 0;
+`;
+
+const RotatingWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
 `;
 
 const PointContainer = styled.div<{ $left: string; $top: string }>`
@@ -30,59 +52,178 @@ const PointContainer = styled.div<{ $left: string; $top: string }>`
   transform: translate(-50%, -50%);
 `;
 
-const CategoryLabel = styled.div`
+const IntervalContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: absolute;
-  transform: translate(56%, 45%);
-  margin-left: 20px;
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--color-base);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  column-gap: 125px;
+
+  @media (max-width: 985px) {
+    display: none;
+  }
 `;
 
-const Circle: React.FC<CircleProps> = ({ points }) => {
+const StartInterval = styled.p`
+  font-size: 200px;
+  font-weight: 700;
+  color: var(--color-blue);
+  line-height: 100%;
+  letter-spacing: -4px;
+  margin: 0;
+  padding: 0;
+
+  @media (max-width: 1176px) {
+    font-size: 150px;
+  }
+`;
+
+const EndInterval = styled.p`
+  font-size: 200px;
+  font-weight: 700;
+  color: var(--color-pink);
+  line-height: 100%;
+  letter-spacing: -4px;
+  margin: 0;
+  padding: 0;
+
+  @media (max-width: 1176px) {
+    font-size: 150px;
+  }
+`;
+
+const Circle: React.FC<CircleProps> = ({ points, initialRotation = -60 }) => {
   const radius = 265;
   const center = radius;
-  const [selectedPoint, setSelectedPoint] = useState<number | null>(1);
+  const angleStep = 360 / points;
 
-  const handlePointClick = (number: number) => {
-    setSelectedPoint((prev) => (prev === number ? null : number));
-  };
+  const [selectedPoint, setSelectedPoint] = useState<number>(1);
+  const [rotation, setRotation] = useState<number>(initialRotation);
+  const [currentStartYear, setCurrentStartYear] = useState<number>(1980);
+  const [currentEndYear, setCurrentEndYear] = useState<number>(1986);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
 
   const pointsArray = Array.from({ length: points }, (_, i) => i + 1);
 
-  const adjustedNumbers = pointsArray.map(
-    (num, index) => pointsArray[(index + 1) % points]
-  );
+  useEffect(() => {
+    if (wrapperRef.current) {
+      gsap.set(wrapperRef.current, {
+        rotation: rotation,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (wrapperRef.current) {
+      gsap.to(wrapperRef.current, {
+        rotation: rotation,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+    }
+  }, [rotation]);
+
+    useEffect(() => {
+    if (labelRef.current) {
+      gsap.fromTo(
+        labelRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.8,
+          delay: 1,
+          ease: 'power2.out',
+        }
+      );
+    }
+  }, [selectedPoint]);
+
+  const handlePointClick = (clickedNumber: number) => {
+    if (selectedPoint === clickedNumber) return;
+
+    const currentIndex = selectedPoint - 1;
+    const clickedIndex = clickedNumber - 1;
+
+    let diff = clickedIndex - currentIndex;
+
+    if (Math.abs(diff) > points / 2) {
+      diff = diff > 0 ? diff - points : diff + points;
+    }
+
+    const newRotation = rotation - diff * angleStep;
+
+    setRotation(newRotation);
+    animateYears(categories[selectedPoint]?.dateRange || '', categories[clickedNumber]?.dateRange || '');
+    setSelectedPoint(clickedNumber);
+  };
+
+  const animateYears = (currentRange: string, nextRange: string) => {
+    const [currentStart, currentEnd] = currentRange.split('-').map(Number);
+    const [nextStart, nextEnd] = nextRange.split('-').map(Number);
+
+    gsap.to({ value: currentStart }, {
+      value: nextStart,
+      duration: 0.8,
+      ease: 'none',
+      onUpdate: function () {
+        setCurrentStartYear(Math.round(this.targets()[0].value));
+      },
+    });
+
+    gsap.to({ value: currentEnd }, {
+      value: nextEnd,
+      duration: 0.8,
+      ease: 'none',
+      onUpdate: function () {
+        setCurrentEndYear(Math.round(this.targets()[0].value));
+      },
+    });
+  };
 
   return (
     <CircleContainer $borderOpacity={0.5}>
-      {pointsArray.map((num, index) => {
-        const angle = ((2 * Math.PI * index) / points);
-        const x = center + radius * Math.cos(angle);
-        const y = center + radius * Math.sin(angle);
+      <IntervalContainer>
+        <StartInterval>{currentStartYear}</StartInterval>
+        <EndInterval>{currentEndYear}</EndInterval>
+      </IntervalContainer>
 
-        const displayedNumber = adjustedNumbers[index];
+      <RotatingWrapper ref={wrapperRef}>
+        {pointsArray.map((num, index) => {
+          const angle = (360 / points) * index;
+          const x = center + radius * Math.cos((angle * Math.PI) / 180);
+          const y = center + radius * Math.sin((angle * Math.PI) / 180);
 
-        return (
-          <PointContainer
-            key={num}
-            $left={`${x}px`}
-            $top={`${y}px`}
-          >
-            {selectedPoint === displayedNumber && (
-              <CategoryLabel>
-                {categories[selectedPoint]}
-              </CategoryLabel>
-            )}
-            <CirclePoint
-              number={displayedNumber}
-              onClick={handlePointClick}
-              isSelected={selectedPoint === displayedNumber}
-            />
-          </PointContainer>
-        );
-      })}
-    </CircleContainer>
+          return (
+            <PointContainer
+              key={num}
+              $left={`${x}px`}
+              $top={`${y}px`}
+            >
+              <div
+                style={{
+                  transform: `rotate(${-rotation}deg)`
+                }}
+              >
+                <CirclePoint
+                  number={num}
+                  onClick={() => handlePointClick(num)}
+                  isSelected={selectedPoint === num}
+                />
+              </div>
+            </PointContainer>
+          );
+        })}
+      </RotatingWrapper>
+      <CategoryLabel ref={labelRef}>
+        {categories[selectedPoint]?.name}
+      </CategoryLabel>
+
+    </CircleContainer >
   );
 };
 

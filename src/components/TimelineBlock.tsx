@@ -25,6 +25,10 @@ const Title = styled.h1`
     height: 100%;
     background: linear-gradient(180deg, #3877EE 0%, #EF5DA8 100%);
   }
+  
+  @media (max-width: 1400px) {
+    font-size: 45px;
+  }
 `;
 
 const TimelineBlock = () => {

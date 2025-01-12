@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { gsap } from 'gsap';
 
@@ -20,19 +20,15 @@ const HoverZone = styled.div`
   background-color: transparent;
 `;
 
-const ExpandingCircle = styled.div<{ $isSelected: boolean }>`
+const ExpandingCircle = styled.div`
   position: absolute;
-  width: ${(props) => (props.$isSelected ? '56px' : '6px')};
-  height: ${(props) => (props.$isSelected ? '56px' : '6px')};
-  background-color: ${(props) =>
-    props.$isSelected ? 'rgba(244, 245, 249, 1)' : 'var(--color-base)'};
-  border: ${(props) =>
-    props.$isSelected ? '1px solid rgba(66, 86, 122, 0.5)' : 'none'};
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-base);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
 `;
 
 const CircleNumber = styled.span<{ $visible: boolean }>`
@@ -49,52 +45,52 @@ const CirclePoint: React.FC<CirclePointProps> = ({
   isSelected,
 }) => {
   const circleRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const [isNumberVisible, setIsNumberVisible] = useState(false);
 
-  const handleMouseEnter = () => {
-    gsap.killTweensOf(circleRef.current);
-    gsap.killTweensOf(setIsNumberVisible);
-    if (isSelected) return;
-
-    const timeline = gsap.timeline();
-
-    timeline
-      .to(circleRef.current, {
-        width: 56,
-        height: 56,
-        backgroundColor: 'rgba(244, 245, 249, 1)',
-        border: '1px solid rgba(66, 86, 122, 0.5)',
-        duration: 0.05,
+  useEffect(() => {
+    if (circleRef.current) {
+      gsap.killTweensOf(circleRef.current);
+      gsap.to(circleRef.current, {
+        width: isSelected ? 56 : 6,
+        height: isSelected ? 56 : 6,
+        backgroundColor: isSelected
+          ? 'rgba(244, 245, 249, 1)'
+          : 'rgba(66, 86, 122, 1)',
+        border: isSelected ? '1px solid rgba(66, 86, 122, 0.5)' : 'none',
+        duration: 0.3,
         ease: 'power1.out',
-        onUpdate: () => {
-          const currentWidth = gsap.getProperty(circleRef.current, 'width') as number;
-
-          if (currentWidth >= 30) {
-            setIsNumberVisible(true);
-          }
-        },
       });
+    }
+    setIsNumberVisible(isSelected);
+  }, [isSelected]);
+
+  const handleMouseEnter = () => {
+    if (isSelected) return;
+    setIsHovered(true);
+    gsap.to(circleRef.current, {
+      width: 56,
+      height: 56,
+      backgroundColor: 'rgba(244, 245, 249, 1)',
+      border: '1px solid rgba(66, 86, 122, 0.5)',
+      duration: 0.3,
+      ease: 'power1.out',
+    });
+    setIsNumberVisible(true);
   };
 
   const handleMouseLeave = () => {
-    gsap.killTweensOf(circleRef.current);
-    gsap.killTweensOf(setIsNumberVisible);
     if (isSelected) return;
-
-    const timeline = gsap.timeline();
-
-    timeline
-      .to(circleRef.current, {
-        width: 6,
-        height: 6,
-        backgroundColor: 'rgba(66, 86, 122, 1)',
-        border: 'none',
-        duration: 0.05,
-        ease: 'power1.in',
-        onStart: () => {
-          setIsNumberVisible(false);
-        },
-      });
+    setIsHovered(false);
+    gsap.to(circleRef.current, {
+      width: 6,
+      height: 6,
+      backgroundColor: 'rgba(66, 86, 122, 1)',
+      border: 'none',
+      duration: 0.3,
+      ease: 'power1.in',
+    });
+    setIsNumberVisible(false);
   };
 
   const handleClick = () => {
@@ -107,10 +103,8 @@ const CirclePoint: React.FC<CirclePointProps> = ({
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
-      <ExpandingCircle ref={circleRef} $isSelected={isSelected}>
-        <CircleNumber $visible={isSelected || isNumberVisible}>
-          {number}
-        </CircleNumber>
+      <ExpandingCircle ref={circleRef}>
+        <CircleNumber $visible={isNumberVisible}>{number}</CircleNumber>
       </ExpandingCircle>
     </HoverZone>
   );
