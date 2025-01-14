@@ -47,6 +47,8 @@ const GlobalStyles = createGlobalStyle`
     margin: 0;
     padding: 0;
     font-family: 'PT Sans', Arial, sans-serif; 
+    display: flex;
+    justify-content: center;
   }
 
   * {

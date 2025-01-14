@@ -39,16 +39,18 @@ const EventText = styled.p`
   }
 `;
 
-const Event = () => {
+interface EventProps {
+  year: number;
+  description: string;
+}
 
+const EventCard: React.FC<EventProps> = ({ year, description }) => {
   return (
     <EventContainer>
-      <EventTitle></EventTitle>
-      <EventText></EventText>
-
-
+      <EventTitle>{year}</EventTitle>
+      <EventText>{description}</EventText>
     </EventContainer>
   );
-};
+}
 
-export default Event;
+export default EventCard;

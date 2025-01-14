@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 interface ArrowButtonProps {
@@ -37,11 +37,7 @@ const sizes = {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          d="M1 1L6 6L1 11"
-          stroke="#3877EE"
-          strokeWidth="2"
-        />
+        <path d="M1 1L6 6L1 11" stroke="#3877EE" strokeWidth="2" />
       </svg>
     ),
   },
@@ -134,28 +130,28 @@ const Button = styled.button<Pick<ArrowButtonProps, 'size' | 'direction'>>`
     `}
 `;
 
-const ArrowButton: React.FC<ArrowButtonProps> = ({
-  size,
-  direction,
-  isActive = true,
-  onClick,
-}) => {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isActive) {
-      onClick(e);
-    }
-  };
+const ArrowButton = forwardRef<HTMLButtonElement, ArrowButtonProps>(
+  ({ size, direction, isActive = true, onClick }, ref) => {
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (isActive) {
+        onClick(e);
+      }
+    };
 
-  return (
-    <Button
-      size={size}
-      direction={direction}
-      disabled={!isActive}
-      onClick={handleClick}
-    >
-      {sizes[size].svg}
-    </Button>
-  );
-};
+    return (
+      <Button
+        size={size}
+        direction={direction}
+        disabled={!isActive}
+        onClick={handleClick}
+        ref={ref}
+      >
+        {sizes[size].svg}
+      </Button>
+    );
+  }
+);
+
+ArrowButton.displayName = 'ArrowButton';
 
 export default ArrowButton;
