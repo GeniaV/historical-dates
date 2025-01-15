@@ -45,10 +45,12 @@ const GlobalStyles = createGlobalStyle`
     background: var(--backgroud-color);
     color: var(--color-base);
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 320px;
     font-family: 'PT Sans', Arial, sans-serif; 
-    display: flex;
-    justify-content: center;
+
+    @media (max-width: 985px) {
+     padding: 59px 0 13px 0;
+    }
   }
 
   * {

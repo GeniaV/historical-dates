@@ -4,41 +4,58 @@ import 'swiper/css';
 import styled from 'styled-components';
 import ArrowButton from './ui/ArrowButton';
 import EventCard from './EventCard';
+import { useTimeline } from '../context/TimelineContext';
+import { useIsMobile } from './App';
 
-interface EventCarouselProps {
-  events: {
-    year: number;
-    description: string;
-  }[],
-  category: string;
-}
-
-const ArrowWrapper = styled.div<{ $position: 'left' | 'right' }>`
-  position: absolute;
-  top: 25%;
-  transform: translateY(-50%);
-  ${(props) => (props.$position === 'left' ? 'left: 0;' : 'right: 0;')};
-  z-index: 10;
-`;
-
-const SwiperContainer = styled.div`
-  position: relative;
-  max-width: 1200px;
+const EventCarouselContainer = styled.div`
+  display: flex;
+  box-sizing: border-box;
+  max-width: 1440px;
   width: 100%;
-
-  @media (max-width: 985px) {
-    max-width: 320px;
+  align-items: center;
+  justify-content: space-between;
+  justify-items: center;
+  margin: 56px auto 0 auto; 
+  
+  @media (max-width: 1270px) {
+    justify-content: flex-start;
+     margin: 20px auto 0 auto; 
   }
 `;
 
-const CategoryLabel = styled.div`
-  max-width: 280px;
+const ArrowWrapper = styled.div<{ $position: 'left' | 'right' }>`
+  ${(props) => (props.$position === 'left' ? 'left: 0;' : 'right: 0;')};
+
+  @media (max-width: 1270px) {
+    display: none;
+  }
+`;
+
+const SwiperContainer = styled.div`
+  justify-content: center;
+  display: flex;
+  max-width: 1200px;
   width: 100%;
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--color-base);
-  padding-bottom: 20px;
-  border-bottom: 1px solid #C7CDD9;
+  cursor: pointer;
+
+  .swiper-slide {
+    @media (max-width: 985px) {
+      margin-right: -20px;
+    }
+  }
+
+  .swiper-slide:first-child {
+    @media (max-width: 985px) {
+      margin-left: 20px;
+    }
+  }
+
+  .swiper-wrapper {
+    @media (max-width: 985px) {
+      margin-left: 0;
+      width: calc(100% + 20px);
+    }
+  }
 `;
 
 const SlidePrevButton: React.FC<{
@@ -69,17 +86,12 @@ const SlideNextButton: React.FC<{
   </ArrowWrapper>
 );
 
-const EventCarousel: React.FC<EventCarouselProps> = ({ events, category }) => {
+const EventCarousel: React.FC = () => {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 985);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 985);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { currentCategory } = useTimeline();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (swiperInstance) {
@@ -87,22 +99,17 @@ const EventCarousel: React.FC<EventCarouselProps> = ({ events, category }) => {
       setIsBeginning(swiperInstance.isBeginning);
       setIsEnd(swiperInstance.isEnd);
     }
-  }, [events, swiperInstance]);
+  }, [currentCategory.events, swiperInstance]);
 
   return (
-    <>
-
-      {!isMobile && swiperInstance && !isBeginning && (
-        <SlidePrevButton disabled={isBeginning} swiper={swiperInstance} />
-      )}
+    <EventCarouselContainer>
+      {!isMobile && <SlidePrevButton disabled={isBeginning} swiper={swiperInstance} />}
       <SwiperContainer>
-        {isMobile &&
-          <CategoryLabel>{category}</CategoryLabel>
-        }
         <Swiper
-          style={{ marginTop: '20px' }}
+          initialSlide={0}
+          slideToClickedSlide={true}
           spaceBetween={isMobile ? 25 : 80}
-          slidesPerView={isMobile ? 2 : 3}
+          slidesPerView={isMobile ? 1.2 : 3}
           onSlideChange={(swiper) => {
             setIsBeginning(swiper.isBeginning);
             setIsEnd(swiper.isEnd);
@@ -113,17 +120,22 @@ const EventCarousel: React.FC<EventCarouselProps> = ({ events, category }) => {
             setIsEnd(swiper.isEnd);
           }}
         >
-          {events.map((event, index) => (
-            <SwiperSlide key={index}>
-              <EventCard year={event.year} description={event.description} />
+          {currentCategory.events.map((event, index) => (
+            <SwiperSlide
+              key={index}
+              style={
+                index === 0
+                  ? { marginLeft: isMobile ? '20px' : '0px' }
+                  : {}
+              }
+            >
+              <EventCard event={event} />
             </SwiperSlide>
           ))}
         </Swiper>
       </SwiperContainer>
-      {!isMobile && swiperInstance && !isEnd && (
-        <SlideNextButton disabled={isEnd} swiper={swiperInstance} />
-      )}
-    </>
+      {!isMobile && <SlideNextButton disabled={isEnd} swiper={swiperInstance} />}
+    </EventCarouselContainer>
   );
 };
 

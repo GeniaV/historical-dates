@@ -127,7 +127,7 @@ const Button = styled.button<Pick<ArrowButtonProps, 'size' | 'direction'>>`
       background: white;
       box-shadow: 0 0 15px rgba(56, 119, 238, 0.1);
       border: none;
-    `}
+     `}
 `;
 
 const ArrowButton = forwardRef<HTMLButtonElement, ArrowButtonProps>(
@@ -137,6 +137,10 @@ const ArrowButton = forwardRef<HTMLButtonElement, ArrowButtonProps>(
         onClick(e);
       }
     };
+
+    if (size === 'medium' && !isActive) {
+      return null;
+    }
 
     return (
       <Button

@@ -1,4 +1,6 @@
-export const categories: Record<number, {
+export const pageTitle = "Исторические даты";
+
+export const segments: Record<number, {
   name: string;
   dateRange: string;
   events: { year: number; description: string }[];
