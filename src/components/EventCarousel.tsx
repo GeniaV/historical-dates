@@ -4,7 +4,6 @@ import 'swiper/css';
 import styled from 'styled-components';
 import ArrowButton from './ui/ArrowButton';
 import EventCard from './EventCard';
-import { useTimeline } from '../context/TimelineContext';
 import { useIsMobile } from './App';
 
 const EventCarouselContainer = styled.div`
@@ -16,7 +15,7 @@ const EventCarouselContainer = styled.div`
   justify-content: space-between;
   justify-items: center;
   margin: 56px auto 0 auto; 
-  
+
   @media (max-width: 1270px) {
     justify-content: flex-start;
      margin: 20px auto 0 auto; 
@@ -58,6 +57,21 @@ const SwiperContainer = styled.div`
   }
 `;
 
+type Event = {
+  year: number;
+  description: string;
+};
+
+type Category = {
+  name: string;
+  dateRange: string;
+  events: Event[];
+};
+
+type EventCarouselProps = {
+  currentCategory: Category;
+};
+
 const SlidePrevButton: React.FC<{
   disabled: boolean;
   swiper: any;
@@ -86,11 +100,11 @@ const SlideNextButton: React.FC<{
   </ArrowWrapper>
 );
 
-const EventCarousel: React.FC = () => {
+const EventCarousel: React.FC<EventCarouselProps> = ({ currentCategory }) => {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
-  const { currentCategory } = useTimeline();
+
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -140,3 +154,4 @@ const EventCarousel: React.FC = () => {
 };
 
 export default EventCarousel;
+

@@ -105,6 +105,8 @@ const Button = styled.button<Pick<ArrowButtonProps, 'size' | 'direction'>>`
       height: ${sizes.small.dimension};
       border: 1px solid rgba(66, 86, 122, 0.5);
       background: none;
+      box-sizing: border-box;
+      padding: 0;
 
       &:hover,
       &:active {

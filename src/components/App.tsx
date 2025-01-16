@@ -34,11 +34,11 @@ const App = () => {
   return (
     <>
       <GlobalStyles />
-      <TimelineProvider>
-        <AppContainer>
+      <AppContainer>
+        <TimelineProvider>
           <TimelineBlock />
-        </AppContainer>
-      </TimelineProvider>
+        </TimelineProvider>
+      </AppContainer>
     </>
   );
 };

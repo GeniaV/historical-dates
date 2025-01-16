@@ -1,6 +1,5 @@
 import React from "react";
 import styled from 'styled-components';
-import { useTimeline } from '../context/TimelineContext';
 
 const Title = styled.h1`
   font-size: 56px;
@@ -32,9 +31,7 @@ const Title = styled.h1`
 `;
 
 const PageTitle: React.FC = () => {
-  const { pageTitle } = useTimeline();
-
-  return <Title>{pageTitle}</Title>;
+  return <Title>Исторические даты</Title>;
 };
 
 export default PageTitle;

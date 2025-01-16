@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import styled from 'styled-components';
 import gsap from 'gsap';
-import { useTimeline } from '../context/TimelineContext';
 import { useIsMobile } from './App';
 
-const CategoryLabel = styled.p`
+const CategoryLabel = styled.p<{ $isDesktop: boolean }>`
   max-width: 102px;
   width: 100%;
   margin: 0;
@@ -15,17 +14,32 @@ const CategoryLabel = styled.p`
   display: flex;
   opacity: 0;
 
+  ${({ $isDesktop }) =>
+    $isDesktop &&
+    `
+    position: absolute;
+    top: 20px;
+    right: -20px;
+    transform: translateY(-50%);
+  `}
+
   @media (max-width: 978px) {
     font-size: 14px;
     max-width: 123px;
+    position: static;
+    transform: none;
   }
 `;
 
-const CategoryTitle: React.FC = () => {
-  const { currentCategory, currentSegmentId } = useTimeline();
+export type CategoryTitleProps = {
+  currentSegment: {
+    name: string;
+  };
+};
+
+const CategoryTitle: React.FC<CategoryTitleProps> = ({ currentSegment }) => {
   const labelRef = useRef<HTMLParagraphElement>(null);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     if (labelRef.current) {
       const animationConfig = isMobile
@@ -43,9 +57,14 @@ const CategoryTitle: React.FC = () => {
         }
       );
     }
-  }, [currentSegmentId, isMobile]);
+  }, [currentSegment, isMobile]);
 
-  return <CategoryLabel ref={labelRef}>{currentCategory.name}</CategoryLabel>;
+  return (
+    <CategoryLabel ref={labelRef} $isDesktop={!isMobile}>
+      {currentSegment.name}
+    </CategoryLabel>
+  );
 };
 
 export default CategoryTitle;
+

@@ -45,7 +45,6 @@ const CirclePoint: React.FC<CirclePointProps> = ({
   isSelected,
 }) => {
   const circleRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
   const [isNumberVisible, setIsNumberVisible] = useState(false);
 
   useEffect(() => {
@@ -67,7 +66,6 @@ const CirclePoint: React.FC<CirclePointProps> = ({
 
   const handleMouseEnter = () => {
     if (isSelected) return;
-    setIsHovered(true);
     gsap.to(circleRef.current, {
       width: 56,
       height: 56,
@@ -81,7 +79,6 @@ const CirclePoint: React.FC<CirclePointProps> = ({
 
   const handleMouseLeave = () => {
     if (isSelected) return;
-    setIsHovered(false);
     gsap.to(circleRef.current, {
       width: 6,
       height: 6,

@@ -47,7 +47,7 @@ const BackgroundLines = styled.div`
 
 const TimelineBlock = () => {
   const isMobile = useIsMobile();
-  
+
   return (
     <TimelineContainer>
       <TimelineComponent />

@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
 import CirclePoint from "./ui/CirclePoint";
+import CategoryTitle from "./CategoryTitle";
 
 const CircleContainer = styled.div<{ $borderOpacity: number }>`
   width: 530px;
@@ -8,6 +9,7 @@ const CircleContainer = styled.div<{ $borderOpacity: number }>`
   border: 1px solid rgba(66, 86, 122, ${(props) => props.$borderOpacity});
   border-radius: 50%;
   background-color: transparent;
+  position: relative;
   margin: 0 auto;
   @media (max-width: 985px) {
     display: none;
@@ -36,10 +38,14 @@ type CircleNavigatorProps = {
   rotation: number;
   selectedPoint: number;
   handlePointClick: (point: number) => void;
+  currentSegment: {
+    name: string;
+    dateRange: string;
+  };
 };
 
 const CircleNavigator = forwardRef<HTMLDivElement, CircleNavigatorProps>(
-  ({ points, rotation = 360, selectedPoint, handlePointClick }, ref) => {
+  ({ points, rotation, selectedPoint, handlePointClick, currentSegment }, ref) => {
     const radius = 265;
     const center = radius;
 
@@ -66,6 +72,7 @@ const CircleNavigator = forwardRef<HTMLDivElement, CircleNavigatorProps>(
             );
           })}
         </RotatingWrapper>
+        <CategoryTitle currentSegment={currentSegment} />
       </CircleContainer>
     );
   }

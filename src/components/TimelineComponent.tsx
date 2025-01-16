@@ -37,6 +37,60 @@ const AlignContainer = styled.div`
   column-gap: 38px;
 `;
 
+const CircleContainerDesktop = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  justify-content: center;
+
+  @media (max-width: 978px) {
+    display: none;
+  }
+`;
+
+const IntervalWrapper = styled.div`
+  margin-top: 20px;
+  position: absolute;
+  z-index: -1;
+  max-width: 973px;
+  width: 100%;
+`;
+
+const CircleNavigatorWrapper = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const HorizontalLine = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-base);
+  opacity: 0.1;
+  pointer-events: none;
+  transform: translateY(-50%);
+`;
+
+const SwithcerContainerDescktop = styled.div`
+  padding-left: 84px;
+`;
+
+const Desktop = styled.div`
+  padding-top: 170px;
+  display: grid;
+
+    @media (max-width: 1592px) {
+    display: none;
+  }
+`;
+
 const TimelineComponent: React.FC = () => {
   const isMobile = useIsMobile();
   const [rotation, setRotation] = useState<number>(-60);
@@ -71,6 +125,7 @@ const TimelineComponent: React.FC = () => {
     );
     setCurrentSegmentId(clickedId);
   };
+
 
   const handleArrowClick = (direction: 'left' | 'right') => {
     let newPoint = direction === 'right' ? parseInt(currentSegmentId.toString()) - 1 : parseInt(currentSegmentId.toString()) + 1;
@@ -183,7 +238,40 @@ const TimelineComponent: React.FC = () => {
 
   return (
     <div>
-      {/* {<PageTitle />} */}
+      {!isMobile &&
+        <Desktop>
+          <PageTitle />
+          <CircleContainerDesktop>
+            <CircleNavigatorWrapper>
+              <HorizontalLine />
+              <CircleNavigator
+                points={points}
+                rotation={rotation}
+                selectedPoint={parseInt(currentSegmentId.toString())}
+                handlePointClick={handlePointClick}
+                ref={wrapperRef}
+                currentSegment={segments[currentSegmentId]}
+              />
+            </CircleNavigatorWrapper>
+            <IntervalWrapper>
+              <Interval
+                startYear={currentStartYear}
+                endYear={currentEndYear}
+              />
+            </IntervalWrapper>
+          </CircleContainerDesktop>
+          <SwithcerContainerDescktop>
+            <SegmentSwitcher
+              points={points}
+              selectedPoint={parseInt(currentSegmentId.toString())}
+              handleArrowClick={direction => handleArrowClick(direction)}
+            />
+          </SwithcerContainerDescktop>
+          <div ref={carouselRef}>
+            <EventCarousel currentCategory={segments[currentSegmentId]} />
+          </div>
+        </Desktop>
+      }
       {isMobile && (
         <>
           <PageTitle />
@@ -191,17 +279,16 @@ const TimelineComponent: React.FC = () => {
             <Interval
               startYear={currentStartYear}
               endYear={currentEndYear}
-              isMobile={isMobile}
             />
           </IntervalContainerMobile>
           <div ref={categoryRef}>
             <CategoryContainer>
-              <CategoryTitle />
+              <CategoryTitle currentSegment={segments[currentSegmentId]} />
               <BackgroundLine />
             </CategoryContainer>
           </div>
           <div ref={carouselRef}>
-            <EventCarousel />
+            <EventCarousel currentCategory={segments[currentSegmentId]} />
           </div>
           <AlignContainer>
             <SegmentSwitcher

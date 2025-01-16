@@ -48,7 +48,7 @@ const GlobalStyles = createGlobalStyle`
     padding: 0 0 0 320px;
     font-family: 'PT Sans', Arial, sans-serif; 
 
-    @media (max-width: 985px) {
+    @media (max-width: 1100px) {
      padding: 59px 0 13px 0;
     }
   }
